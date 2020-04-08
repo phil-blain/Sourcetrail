@@ -4,10 +4,14 @@ osx_image: xcode8
 
 language: cpp
 
-addons:
-  homebrew:
-    taps: phil-blain/homebrew-versions
-    casks: qt@5.11
+#addons:
+#  homebrew:
+#    taps: phil-blain/homebrew-versions
+#    casks: qt@5.11
+
+install:
+  - brew tap phil-blain/homebrew-versions
+  - brew install qt@5.11
 
 script:
   - git rev-parse HEAD
