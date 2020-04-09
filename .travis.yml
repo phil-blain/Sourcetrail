@@ -11,6 +11,7 @@ language: cpp
 
 install:
 #  - rvm use 2.3 --install --binary
+  - brew untap homebrew/versions
   - brew update
   - export HOMEBREW_NO_AUTO_UPDATE=1
   - brew tap phil-blain/homebrew-versions
