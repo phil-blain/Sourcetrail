@@ -17,8 +17,13 @@ install:
   - export HOMEBREW_NO_AUTO_UPDATE=1
   - brew tap phil-blain/homebrew-versions
   - brew install qt@5.11 --verbose
+  - brew install boost
 
 script:
-  - git rev-parse HEAD
+  - mkdir -p build/Release
+  - cd build/Release
+#  - cmake -DCMAKE_BUILD_TYPE="Release" -DBOOST_ROOT=/usr/local/Cellar/boost/:$(brew info boost|grep 'boost:'| awk '{print $3}'|sed -e 's/,//') -DQt5_DIR=<path/to/Qt/version/platform/compiler/lib/cmake/Qt5> ../..
+  - cmake -DCMAKE_BUILD_TYPE="Release" ../.. 
+  - make Sourcetrail
 
 
