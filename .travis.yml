@@ -28,12 +28,15 @@ install:
   - brew install imagemagick
   # For C/C++ support
   - brew install llvm@9
+  # Make times out, let's try ninja
+  - brew install ninja
 
 script:
   - mkdir -p build/Release
   - cd build/Release
-  - cmake -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 -DBUILD_CXX_LANGUAGE_PACKAGE=ON -DClang_DIR=$(brew --prefix llvm@9)/lib/cmake/clang ../..
-  - make -j Sourcetrail VERBOSE=1
+  - cmake -G "Ninja" -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 -DBUILD_CXX_LANGUAGE_PACKAGE=ON -DClang_DIR=$(brew --prefix llvm@9)/lib/cmake/clang ../..
+#  - make -j Sourcetrail VERBOSE=1
+  - ninja -v
   - ./app/bundle_install.sh
 
 
