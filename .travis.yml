@@ -33,7 +33,7 @@ script:
   - mkdir -p build/Release
   - cd build/Release
   - cmake -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 -DBUILD_CXX_LANGUAGE_PACKAGE=ON -DClang_DIR=$(brew --prefix llvm@9)/lib/cmake/clang ../..
-  - make -j Sourcetrail
+  - make -j Sourcetrail VERBOSE=1
   - ./app/bundle_install.sh
 
 
