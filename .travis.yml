@@ -18,6 +18,7 @@ install:
   - brew tap phil-blain/homebrew-versions
   - brew install qt@5.11 --verbose
   - brew upgrade boost
+  - brew upgrade cmake
 
 script:
   - mkdir -p build/Release
