@@ -19,15 +19,21 @@ install:
   - brew tap phil-blain/homebrew-versions
   # Do not cleanup automatically
   - export HOMEBREW_NO_INSTALL_CLEANUP=1
-  - brew install qt@5.11
-  - brew switch qt 5.11.2
+  # Useful for Travis debug build
+  - export HOMEBREW_NO_ANALYTICS=1
+  - brew install -f qt@5.11
 # - brew upgrade boost
 #  - brew upgrade cmake
+  # Needed for bundle_install script (`convert`)
+  - brew install imagemagick
+  # For C/C++ support
+  - brew install llvm@9
 
 script:
   - mkdir -p build/Release
   - cd build/Release
-  - cmake -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 ../..
-  - make Sourcetrail
+  - cmake -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 -DBUILD_CXX_LANGUAGE_PACKAGE=ON -DClang_DIR=$(brew --prefix llvm@9)/lib/cmake/clang ../..
+  - make -j -O Sourcetrail
+  - ./app/bundle_install.sh
 
 

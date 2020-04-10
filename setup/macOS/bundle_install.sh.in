@@ -81,10 +81,10 @@ cp -R ../../../bin/app/data/license $RES_DIR/data/license
 mkdir -p $RES_DIR/data/cxx/include
 cp -R ../../../bin/app/data/cxx/include/* $RES_DIR/data/cxx/include
 
-echo -e $INFO "run macdeployqt to copy Qt Frameworks and Plugins"
+echo -e $INFO "running macdeployqt to copy Qt Frameworks and Plugins"
 $QT_DIR/bin/macdeployqt $BUNDLE_PATH
 
-echo -e $INFO "edit qt.conf"
+echo -e $INFO "editing qt.conf"
 sed -i '' -e 's/PlugIns/Plugins/g' $RES_DIR/qt.conf
 
 install_name_tool -delete_rpath "$CLANG_DIR/./lib" $APP_PATH
@@ -98,11 +98,11 @@ install_name_tool -delete_rpath "$QT_DIR/lib" $INDEXER_PATH
 install_name_tool -add_rpath "@loader_path/../Frameworks" $INDEXER_PATH
 
 echo -e $INFO "App dependencies"
-# otool -l $APP_PATH
+otool -l $APP_PATH
 otool -L $APP_PATH
 
 echo -e $INFO "Indexer dependencies"
-# otool -l $INDEXER_PATH
+otool -l $INDEXER_PATH
 otool -L $INDEXER_PATH
 
 
