@@ -25,8 +25,7 @@ script:
   - cd build/Release
   - export LDFLAGS="-L/usr/local/opt/qt/lib"
   - export CPPFLAGS="-I/usr/local/opt/qt/include"
-#  - cmake -DCMAKE_BUILD_TYPE="Release" -DBOOST_ROOT=/usr/local/Cellar/boost/:$(brew info boost|grep 'boost:'| awk '{print $3}'|sed -e 's/,//') -DQt5_DIR=<path/to/Qt/version/platform/compiler/lib/cmake/Qt5> ../..
-  - cmake -DCMAKE_BUILD_TYPE="Release" ../.. 
+  - cmake -DQt5_DIR=$(brew --prefix qt)/platform/compiler/lib/cmake/Qt5 ../..
   - make Sourcetrail
 
 
