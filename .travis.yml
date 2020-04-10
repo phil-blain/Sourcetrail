@@ -20,7 +20,7 @@ install:
   # Do not cleanup automatically
   - export HOMEBREW_NO_INSTALL_CLEANUP=1
   - brew install qt@5.11
-  - brew switch qt 5.11
+  - brew switch qt 5.11.2
 # - brew upgrade boost
 #  - brew upgrade cmake
 
