@@ -87,6 +87,15 @@ $QT_DIR/bin/macdeployqt $BUNDLE_PATH
 echo -e $INFO "editing qt.conf"
 sed -i '' -e 's/PlugIns/Plugins/g' $RES_DIR/qt.conf
 
+echo -e $INFO "App dependencies"
+otool -l $APP_PATH | grep RPATH -A2
+otool -L $APP_PATH
+
+echo -e $INFO "Indexer dependencies"
+otool -l $INDEXER_PATH | grep RPATH -A2
+otool -L $INDEXER_PATH
+
+echo -e $INFO "Making app and indexer relocatable"
 install_name_tool -delete_rpath "$CLANG_DIR/./lib" $APP_PATH
 install_name_tool -delete_rpath "$BOOST_DIR/stage/lib" $APP_PATH
 install_name_tool -delete_rpath "@executable_path/../Frameworks" $APP_PATH
@@ -98,11 +107,11 @@ install_name_tool -delete_rpath "$QT_DIR/lib" $INDEXER_PATH
 install_name_tool -add_rpath "@loader_path/../Frameworks" $INDEXER_PATH
 
 echo -e $INFO "App dependencies"
-otool -l $APP_PATH
+otool -l $APP_PATH | grep RPATH -A2
 otool -L $APP_PATH
 
 echo -e $INFO "Indexer dependencies"
-otool -l $INDEXER_PATH
+otool -l $INDEXER_PATH | grep RPATH -A2
 otool -L $INDEXER_PATH
 
 
@@ -220,11 +229,11 @@ echo -e $SUCCESS "Created bundle successfully!";
 
 
 
-while true; do
-    read -p "Do you want to create a DMG package? [y/n] " yn
-    case $yn in
-        [Yy]* )
-			echo -e $INFO "create DMG package";
+# while true; do
+#     read -p "Do you want to create a DMG package? [y/n] " yn
+#     case $yn in
+#         [Yy]* )
+			echo -e $INFO "Creating DMG package";
 
 			ln -s /Applications $PACKAGE_DIR/Applications;
 			hdiutil create ${PACKAGE_DIR}_macOS_64bit.dmg -volname ${PACKAGE_DIR} -srcfolder ${PACKAGE_DIR};
@@ -232,35 +241,39 @@ while true; do
 
 			echo -e $SUCCESS "Created DMG package successfully!";
 
-			break;;
-        [Nn]* )
-			echo -e $INFO "Skip DMG package.";
-			break;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
+# 			break;;
+#         [Nn]* )
+# 			echo -e $INFO "Skip DMG package.";
+# 			break;;
+#         * ) echo "Please answer yes or no.";;
+#     esac
+# done
 
 
 
-while true; do
-    read -p "Do you want to notarize the app? [y/n] " yn
-    case $yn in
-        [Yy]* )
-			echo -e $INFO "Notarize app.";
+# while true; do
+#     read -p "Do you want to notarize the app? [y/n] " yn
+#     case $yn in
+#         [Yy]* )
+# 			echo -e $INFO "Notarize app.";
+# 
+# 			ditto -c -k --keepParent ${BUNDLE_PATH} ${BUNDLE_PATH}.zip;
+# 			xcrun altool --notarize-app --primary-bundle-id "com.sourcetrail" --username "egraether@coati.io"
+# 				--password "@keychain:sourcetrail_notarization" --file ${BUNDLE_PATH}.zip;
+# 			# xcrun altool --notarization-history 0 -u "egraether@coati.io" -p "@keychain:sourcetrail_notarization";
+# 			# xcrun altool --notarization-info <identifier> -u "egraether@coati.io" -p "@keychain:sourcetrail_notarization";
+# 			rm ${BUNDLE_PATH}.zip;
+# 
+# 			echo -e $SUCCESS "Notarized app successfully!";
+# 
+# 			break;;
+#         [Nn]* )
+# 			echo -e $INFO "Skip app notarization.";
+# 			break;;
+#         * ) echo "Please answer yes or no.";;
+#     esac
+# done
 
-			ditto -c -k --keepParent ${BUNDLE_PATH} ${BUNDLE_PATH}.zip;
-			xcrun altool --notarize-app --primary-bundle-id "com.sourcetrail" --username "egraether@coati.io"
-				--password "@keychain:sourcetrail_notarization" --file ${BUNDLE_PATH}.zip;
-			# xcrun altool --notarization-history 0 -u "egraether@coati.io" -p "@keychain:sourcetrail_notarization";
-			# xcrun altool --notarization-info <identifier> -u "egraether@coati.io" -p "@keychain:sourcetrail_notarization";
-			rm ${BUNDLE_PATH}.zip;
-
-			echo -e $SUCCESS "Notarized app successfully!";
-
-			break;;
-        [Nn]* )
-			echo -e $INFO "Skip app notarization.";
-			break;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
+echo -e $INFO "Creating zip archive";
+zip -r -X ${PACKAGE_DIR}.zip $PACKAGE_DIR
+ls
