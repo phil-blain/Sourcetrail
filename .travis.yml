@@ -14,18 +14,20 @@ install:
 #  - brew untap homebrew/versions
 #  - brew update
   - export HOMEBREW_VERBOSE_USING_DOTS=1
-#  - export HOMEBREW_NO_AUTO_UPDATE=1
+  - export HOMEBREW_VERBOSE=1
+  - export HOMEBREW_NO_AUTO_UPDATE=1
   - brew tap phil-blain/homebrew-versions
-  - brew install qt@5.11 --verbose
-  - brew upgrade boost
-  - brew upgrade cmake
+  # Do not cleanup automatically
+  - export HOMEBREW_NO_INSTALL_CLEANUP=1
+  - brew install qt@5.11
+  - brew switch qt 5.11
+# - brew upgrade boost
+#  - brew upgrade cmake
 
 script:
   - mkdir -p build/Release
   - cd build/Release
-  - export LDFLAGS="-L/usr/local/opt/qt/lib"
-  - export CPPFLAGS="-I/usr/local/opt/qt/include"
-  - cmake -DQt5_DIR=$(brew --prefix qt)/platform/compiler/lib/cmake/Qt5 ../..
+  - cmake -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 ../..
   - make Sourcetrail
 
 
