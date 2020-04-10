@@ -17,7 +17,7 @@ install:
   - export HOMEBREW_NO_AUTO_UPDATE=1
   - brew tap phil-blain/homebrew-versions
   - brew install qt@5.11 --verbose
-  - brew install boost
+  - brew upgrade boost
 
 script:
   - mkdir -p build/Release
