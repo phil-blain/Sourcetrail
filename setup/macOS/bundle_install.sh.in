@@ -275,5 +275,5 @@ echo -e $SUCCESS "Created bundle successfully!";
 # done
 
 echo -e $INFO "Creating zip archive";
-zip -r -X ${PACKAGE_DIR}.zip $PACKAGE_DIR
+zip -q r -X ${PACKAGE_DIR}.zip $PACKAGE_DIR
 ls
