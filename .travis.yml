@@ -38,12 +38,14 @@ script:
 #  - make -j Sourcetrail VERBOSE=1
   - ninja -v
   - ./app/bundle_install.sh
+  - mkdir deploy
+  - mv app/Sourcetrail*.zip deploy
+  - mv app/Sourcetrail*.dmg deploy
 
 deploy:
   provider: releases
-  file: 
-    - build/Release/app/Sourcetrail_2020_2_30.zip
-    - build/Release/app/Sourcetrail_2020_2_30_macOS_64bit.dmg
+  file_glob: true
+  file: build/Release/deploy/*
   skip_cleanup: true
   draft: true
   api_key:
