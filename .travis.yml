@@ -39,13 +39,15 @@ script:
   - ninja -v
   - ./app/bundle_install.sh
   - mkdir deploy
-  - mv app/Sourcetrail*.zip deploy
-  - mv app/Sourcetrail*.dmg deploy
+  - mv app/Sourcetrail*.zip deploy/Sourcetrail.zip
+  - mv app/Sourcetrail*.dmg deploy/Sourcetrail.dmg
 
 deploy:
   provider: releases
-  file_glob: true
-  file: build/Release/deploy/*
+#  file_glob: true
+  file: 
+    - build/Release/deploy/Sourcetrail.zip
+    - build/Release/deploy/Sourcetrail.dmg
   skip_cleanup: true
   overwrite: true
   api_key:
