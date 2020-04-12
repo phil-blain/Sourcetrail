@@ -42,6 +42,9 @@ script:
   - mv app/Sourcetrail*.zip deploy/Sourcetrail.zip
   - mv app/Sourcetrail*.dmg deploy/Sourcetrail.dmg
 
+before_deploy:
+  - tree
+
 deploy:
   provider: releases
 #  file_glob: true
