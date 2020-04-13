@@ -33,6 +33,7 @@ install:
   - brew install tree
 
 script:
+  - export MACOSX_DEPLOYMENT_TARGET=10.11
   - mkdir -p build/Release
   - cd build/Release
   - cmake -G "Ninja" -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 -DBUILD_CXX_LANGUAGE_PACKAGE=ON -DClang_DIR=$(brew --prefix llvm@9)/lib/cmake/clang ../..
