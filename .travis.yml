@@ -9,6 +9,9 @@ language: cpp
 #    taps: phil-blain/homebrew-versions
 #    casks: qt@5.11
 
+git:
+  depth: 75
+
 install:
 #  - rvm use 2.3 --install --binary
 #  - brew untap homebrew/versions
