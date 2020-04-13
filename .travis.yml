@@ -30,6 +30,7 @@ install:
   - brew install llvm@9
   # Make times out, let's try ninja
   - brew install ninja
+  - brew install tree
 
 script:
   - mkdir -p build/Release
@@ -41,9 +42,10 @@ script:
   - mkdir deploy
   - mv app/Sourcetrail*.zip deploy/Sourcetrail.zip
   - mv app/Sourcetrail*.dmg deploy/Sourcetrail.dmg
+  - cd ../..
 
 before_deploy:
-  - tree
+  - tree build/Release/deploy
 
 deploy:
   provider: releases
@@ -60,4 +62,5 @@ deploy:
     tags: true
 
 after_deploy:
+  - tree build/Release/deploy
   - tree
