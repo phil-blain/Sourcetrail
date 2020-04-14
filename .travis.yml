@@ -1,26 +1,34 @@
-language: bash
+os: osx
 
-services: docker
+osx_image: xcode9.4
+
+language: cpp
 
 install:
-  - chmod 777 deployment/dockerfiles/linux/travis_ci/entrypoint.sh
-  - docker build -t coatisoftware/local deployment/dockerfiles/linux/travis_ci
+  - export HOMEBREW_VERBOSE_USING_DOTS=1
+  - export HOMEBREW_VERBOSE=1
+  - export HOMEBREW_NO_AUTO_UPDATE=1
+  # Do not cleanup automatically
+  - export HOMEBREW_NO_INSTALL_CLEANUP=1
+  # Useful for Travis debug build
+  - export HOMEBREW_NO_ANALYTICS=1
+  - brew tap phil-blain/homebrew-versions
+  - brew install -f qt@5.11
+  # Needed for bundle_install script (`convert`)
+  - brew install imagemagick
+  # For C/C++ support
+  - brew install llvm@9
+  # Make times out, let's try ninja
+  - brew install ninja
 
 script:
-  - COMMIT_HASH=$(git rev-parse HEAD)
-  - docker run --name builder coatisoftware/local ${COMMIT_HASH}
-  - docker cp builder:/home/builder/Sourcetrail/release $TRAVIS_BUILD_DIR/release
-
-deploy:
-  provider: releases
-  api_key:
-    secure: b+fTcE73+5nkYufBNzGdxnwbx4a2BQr7iy28wdcr+8NrCxgq4mhmuZd+R3JzE7mt3ehEfUbUkXPLwefEcTFkqxXN6WdBjJYTa2JxAHkBuYiSG9X7voNCOU3SWaucY77FTdt5MlWKVOEzoKNT+tbBuLlWKNyPnFLE0JArc9w4DfvCbHos9ikTtiT1suE+OiIgt28SjD6MD4mIDmEHcKkZs1SfNxz8zhkJBp7y0iJOFPaZHZ9wE2DMox5h26ks13NMYP9mkYgZDTMppabuR8KtjGTJB7NSY3Uoj+6AYdGr5hfpzMIzLjfstagfBzLWpnuz29XwUhYR02MTRiJS6h8wXoO5twxWEKIeUT7xEjSZzdirynrErMDThz90vli0gaoZyIhU01sS9lOUozkdQJEg9Wosxs/586bShHOqhvhrfeCv2Z/7u9ftnpm7U+GaFxk3j1ZPHnSt6XcLz2wDcYIjKgsc8dvmMxYTJYLkXENU5XTkKXKfMHfweiZPWBUBjjMpcZWEyw8NQ/IsegMhXlptLsxr5N5A54KipnJK36b52vryIUzzQd4uM/pcWn5j2Il/KagM5U/kRhQDCxAozQ1Ub0HWqM+4WdCxzAg1FEUly7Y68FIVeeD19P7TAPRBGeljmr3vEdJHnr2z20dubWyhOlZ7NfTcd1drWthpN9ZvvT4=
-  file_glob: true
-  file:
-    - "$TRAVIS_BUILD_DIR/release/Sourcetrail*.tar.gz"
-    - "$TRAVIS_BUILD_DIR/release/Sourcetrail*.AppImage"
-  overwrite: true
-  skip_cleanup: true
-  on:
-    tags: true
-    repo: CoatiSoftware/Sourcetrail
+  - export MACOSX_DEPLOYMENT_TARGET=10.11
+  - mkdir -p build/Release
+  - cd build/Release
+  - cmake -G "Ninja" -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 -DBUILD_CXX_LANGUAGE_PACKAGE=ON -DClang_DIR=$(brew --prefix llvm@9)/lib/cmake/clang ../..
+  - ninja -v
+  - ./app/bundle_install.sh
+  - mkdir deploy
+  - mv app/Sourcetrail*.zip deploy/Sourcetrail.zip
+  - mv app/Sourcetrail*.dmg deploy/Sourcetrail.dmg
+  - cd ../..
