@@ -1,9 +1,6 @@
 os: osx
-
 osx_image: xcode9.4
-
 language: cpp
-
 install:
   - export HOMEBREW_VERBOSE_USING_DOTS=1
   - export HOMEBREW_VERBOSE=1
@@ -20,15 +17,29 @@ install:
   - brew install llvm@9
   # Make times out, let's try ninja
   - brew install ninja
-
+  
 script:
-  - export MACOSX_DEPLOYMENT_TARGET=10.11
-  - mkdir -p build/Release
-  - cd build/Release
-  - cmake -G "Ninja" -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 -DBUILD_CXX_LANGUAGE_PACKAGE=ON -DClang_DIR=$(brew --prefix llvm@9)/lib/cmake/clang ../..
-  - ninja -v
-  - ./app/bundle_install.sh
-  - mkdir deploy
-  - mv app/Sourcetrail*.zip deploy/Sourcetrail.zip
-  - mv app/Sourcetrail*.dmg deploy/Sourcetrail.dmg
-  - cd ../..
+- export MACOSX_DEPLOYMENT_TARGET=10.11
+- mkdir -p build/Release
+- cd build/Release
+- cmake -G "Ninja" -DQt5_DIR=$(brew --prefix qt)/lib/cmake/Qt5 -DBUILD_CXX_LANGUAGE_PACKAGE=ON
+  -DClang_DIR=$(brew --prefix llvm@9)/lib/cmake/clang ../..
+- ninja -v
+- "./app/bundle_install.sh"
+- mkdir deploy
+- mv app/Sourcetrail*.zip deploy/Sourcetrail.zip
+- mv app/Sourcetrail*.dmg deploy/Sourcetrail.dmg
+- cd ../..
+
+deploy:
+  provider: releases
+  api_key:
+    secure: rOqigdf1oMQedO4s131xale4OpsPKJqmzE0M2EfvvhJzKG6CSsZy2GCahOAtH83nNBVBfPwC6EDXrPLbibgFJn3Zdd/Y7UGKRe1HtHxmgTGOWxyePhpUnCnPnifApqS4COQyEGV2JYYPAUquzNQHr16AfWIy/0gA0usWFmh4LKOZy53Oa2EGEy8nj+wBjwvWzzSOX7kzMszzwjXh7+D7LDhID/DuoTXecAgMGOekEYGo7lYa64ylJvp0Wnx6X81fl12wDrNGX6e2bd030bestGRhkJRcCo0zB/8MqnjQ8lABZDlwxLwJV2LC8KmRNucnuZHEIGGxaqJAKs7KhFSK8+wWUCEae64iwZBM1qrf1t56IZu6hevLcdv7boFXCF10sPz+t3aDfVicBMi4Eb+txFnHorwv/jc9V9Wv2eREG+G6+SUKO9LNO+tsCNI2bdqpY2MNS7sylxfn8bkVXLRJP1QGEGx3W+3nNzrgk/QH5L+6OI317bkDN5/xIowS5/wvf8ecb99McZMxfEnIWASWzBM6P9XI3emjhwFNlos1vbXVxSDt1HeyQTJ7a2IbvIJ/c09JUGh63PKcFI76v5C7WBiuxRyZmxQ5OsbE2G4e4TMzeofpZpS/KoTefoi2mAGadmMdhAGNsgjeOHsB4Ev6gZ8jxa21EnvHCBBrKzEI4ec=
+  file: 
+    - build/Release/deploy/Sourcetrail.zip
+    - build/Release/deploy/Sourcetrail.dmg
+  skip_cleanup: true
+  overwrite: true
+  on:
+    repo: phil-blain/Sourcetrail
+    tags: true
