@@ -81,12 +81,21 @@ cp -R ../../../bin/app/data/license $RES_DIR/data/license
 mkdir -p $RES_DIR/data/cxx/include
 cp -R ../../../bin/app/data/cxx/include/* $RES_DIR/data/cxx/include
 
-echo -e $INFO "run macdeployqt to copy Qt Frameworks and Plugins"
+echo -e $INFO "running macdeployqt to copy Qt Frameworks and Plugins"
 $QT_DIR/bin/macdeployqt $BUNDLE_PATH
 
-echo -e $INFO "edit qt.conf"
+echo -e $INFO "editing qt.conf"
 sed -i '' -e 's/PlugIns/Plugins/g' $RES_DIR/qt.conf
 
+echo -e $INFO "App dependencies"
+otool -l $APP_PATH | grep RPATH -A2
+otool -L $APP_PATH
+
+echo -e $INFO "Indexer dependencies"
+otool -l $INDEXER_PATH | grep RPATH -A2
+otool -L $INDEXER_PATH
+
+echo -e $INFO "Making app and indexer relocatable"
 install_name_tool -delete_rpath "$CLANG_DIR/./lib" $APP_PATH
 install_name_tool -delete_rpath "$BOOST_DIR/stage/lib" $APP_PATH
 install_name_tool -delete_rpath "@executable_path/../Frameworks" $APP_PATH
@@ -97,12 +106,19 @@ install_name_tool -delete_rpath "$BOOST_DIR/stage/lib" $INDEXER_PATH
 install_name_tool -delete_rpath "$QT_DIR/lib" $INDEXER_PATH
 install_name_tool -add_rpath "@loader_path/../Frameworks" $INDEXER_PATH
 
+install_name_tool -change /usr/local/opt/qt/lib/QtSvg.framework/Versions/5/QtSvg @rpath/QtSvg.framework/Versions/5/QtSvg $INDEXER_PATH
+install_name_tool -change /usr/local/opt/qt/lib/QtWidgets.framework/Versions/5/QtWidgets @rpath/QtWidgets.framework/Versions/5/QtWidgets $INDEXER_PATH
+install_name_tool -change /usr/local/opt/qt/lib/QtGui.framework/Versions/5/QtGui  @rpath/QtGui.framework/Versions/5/QtGui $INDEXER_PATH
+install_name_tool -change /usr/local/opt/qt/lib/QtNetwork.framework/Versions/5/QtNetwork  @rpath/QtNetwork.framework/Versions/5/QtNetwork $INDEXER_PATH
+install_name_tool -change /usr/local/opt/qt/lib/QtCore.framework/Versions/5/QtCore  @rpath/QtCore.framework/Versions/5/QtCore $INDEXER_PATH
+install_name_tool -change /usr/local/opt/llvm/lib/libc++.1.dylib  @rpath/libc++.1.dylib $INDEXER_PATH
+
 echo -e $INFO "App dependencies"
-# otool -l $APP_PATH
+otool -l $APP_PATH | grep RPATH -A2
 otool -L $APP_PATH
 
 echo -e $INFO "Indexer dependencies"
-# otool -l $INDEXER_PATH
+otool -l $INDEXER_PATH | grep RPATH -A2
 otool -L $INDEXER_PATH
 
 
@@ -218,49 +234,15 @@ cp -R ../../../ide_plugins/qt_creator $PACKAGE_DIR/plugins/qt_creator/
 
 echo -e $SUCCESS "Created bundle successfully!";
 
+echo -e $INFO "Creating DMG package";
 
+ln -s /Applications $PACKAGE_DIR/Applications;
+hdiutil create ${PACKAGE_DIR}_macOS_64bit.dmg -volname ${PACKAGE_DIR} -srcfolder ${PACKAGE_DIR};
+rm $PACKAGE_DIR/Applications;
 
-while true; do
-    read -p "Do you want to create a DMG package? [y/n] " yn
-    case $yn in
-        [Yy]* )
-			echo -e $INFO "create DMG package";
+echo -e $SUCCESS "Created DMG package successfully!";
 
-			ln -s /Applications $PACKAGE_DIR/Applications;
-			hdiutil create ${PACKAGE_DIR}_macOS_64bit.dmg -volname ${PACKAGE_DIR} -srcfolder ${PACKAGE_DIR};
-			rm $PACKAGE_DIR/Applications;
+echo -e $INFO "Creating zip archive";
+zip -q -r -X ${PACKAGE_DIR}.zip $PACKAGE_DIR
+echo -e $SUCCESS "Created zip archive successfully!";
 
-			echo -e $SUCCESS "Created DMG package successfully!";
-
-			break;;
-        [Nn]* )
-			echo -e $INFO "Skip DMG package.";
-			break;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
-
-
-
-while true; do
-    read -p "Do you want to notarize the app? [y/n] " yn
-    case $yn in
-        [Yy]* )
-			echo -e $INFO "Notarize app.";
-
-			ditto -c -k --keepParent ${BUNDLE_PATH} ${BUNDLE_PATH}.zip;
-			xcrun altool --notarize-app --primary-bundle-id "com.sourcetrail" --username "egraether@coati.io"
-				--password "@keychain:sourcetrail_notarization" --file ${BUNDLE_PATH}.zip;
-			# xcrun altool --notarization-history 0 -u "egraether@coati.io" -p "@keychain:sourcetrail_notarization";
-			# xcrun altool --notarization-info <identifier> -u "egraether@coati.io" -p "@keychain:sourcetrail_notarization";
-			rm ${BUNDLE_PATH}.zip;
-
-			echo -e $SUCCESS "Notarized app successfully!";
-
-			break;;
-        [Nn]* )
-			echo -e $INFO "Skip app notarization.";
-			break;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
